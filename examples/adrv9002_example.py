@@ -5,19 +5,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import signal
 
-sdr = adi.adrv9002(uri="ip:192.168.86.58")
-sdr.interface_gain_chan0 = "-12dB"
-sdr.interface_gain_chan1 = "-12dB"
+sdr = adi.adrv9002(uri="ip:10.126.202.112")
+sdr.digital_gain_control_mode_chan0 = "Gain_Compensation_manual_control"
+sdr.digital_gain_control_mode_chan1 = "Gain_Compensation_manual_control"
+sdr.interface_gain_chan0 = "-24dB"
+sdr.interface_gain_chan1 = "-24dB"
 sdr.rx_ensm_mode_chan0 = "rf_enabled"
 sdr.rx_ensm_mode_chan1 = "rf_enabled"
-sdr.tx_hardwaregain_chan0 = -20
+sdr.tx_hardwaregain_chan0 = -34
 sdr.tx_ensm_mode_chan0 = "rf_enabled"
 sdr.tx_cyclic_buffer = True
 
 fs = int(sdr.rx0_sample_rate)
 
 # Set single DDS tone for TX on one transmitter
-sdr.dds_single_tone(-3000000, 0.9, channel=0)
+sdr.dds_single_tone(-100000, 0.9, channel=0)
 
 # Create a sinewave waveform
 # fc = 1000000
@@ -34,14 +36,24 @@ sdr.dds_single_tone(-3000000, 0.9, channel=0)
 sdr.rx_buffer_size = 2 ** 18
 
 # Collect data
-for r in range(20):
-    x = sdr.rx()
-    f, Pxx_den = signal.periodogram(x, fs)
-    plt.clf()
-    plt.semilogy(f, Pxx_den)
-    # plt.ylim([1e-9, 1e2])
-    plt.xlabel("frequency [Hz]")
-    plt.ylabel("PSD [V**2/Hz]")
-    plt.draw()
-    plt.pause(0.05)
-    time.sleep(0.1)
+(x, y) = sdr.rx()
+f, Pxx_den = signal.periodogram(x, fs, return_onesided=False)
+plt.clf()
+# Plot Channel 0's I and Q data
+plt.subplot(3, 1, 1)
+plt.xlabel("(i) Time Samples")
+plt.ylabel("Amplitude")
+plt.plot(x.real);
+plt.subplot(3, 1, 2)
+plt.xlabel("(q) Time Samples")
+plt.ylabel("Amplitude")
+plt.plot(x.imag);
+# Plot FFT data
+plt.subplot(3, 1, 3)
+plt.semilogy(f, Pxx_den)
+# plt.ylim([1e-9, 1e2])
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("PSD [V**2/Hz]")
+plt.show()
+plt.pause(0.05)
+time.sleep(0.1)
