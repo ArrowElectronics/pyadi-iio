@@ -9,7 +9,6 @@ from scipy import signal
 ## TX DAC Output Mode Selector
 #  Select internal data sources. Supported values are:
 #  - 0 (0x00): internal tone (DDS)
-#  - 1 (0x01): pattern (SED)
 #  - 2 (0x02): input data (DMA Buffer)
 #  - 3 (0x03): 0x00
 #  - 6 (0x06): pn7 (standard O.150)
@@ -22,8 +21,16 @@ TX_DAC_MODE = 0
 # TX DAC Mode Select Register
 DAC_MODE_REGISTER = 0x0418
 
-uri="ip:10.126.203.87"
-ctx = iio.Context(uri)
+uri="ip:10.126.203.74"
+
+try:
+    ctx = iio.Context(uri)
+    print("Successfully connected to the Data Storm DAQ board")
+except:
+    print("Unable to connect to the Data Storm DAQ board.")
+    print("Please check the IP address of the host Ethernet Adapter")
+    sys.exit(0)
+
 dac = ctx.find_device("axi-adrv9002-tx-lpc") # DAC Core in HDL for DMA
 
 def gen_tone(fc, fs, N):
@@ -57,15 +64,17 @@ sdr.tx_cyclic_buffer = True
 fs = int(sdr.rx0_sample_rate)
 
 # Enable digital loopback
-# sdr._ctrl.debug_attrs['tx0_ssi_test_mode_loopback_en'].value = '1'
+sdr._ctrl.debug_attrs['tx0_ssi_test_mode_loopback_en'].value = '1'
 
+# Set TX output mode depending on the TX_DAC_MODE value
 dac.reg_write(DAC_MODE_REGISTER, TX_DAC_MODE)
 reg_val = dac.reg_read(DAC_MODE_REGISTER)
+print("Register 0x0418 =", end=' ')
 print(reg_val)
 
 if (TX_DAC_MODE == 0):
     # Set single DDS tone for TX on one transmitter
-    sdr.dds_single_tone(-10e3, 0.5, channel=0)
+    sdr.dds_single_tone(-10e3, 0.9, channel=0)
 elif (TX_DAC_MODE == 2):
     # Create a sinewave waveform
     N = 1024
@@ -87,10 +96,11 @@ plt.subplot(3, 1, 1)
 plt.xlabel("(voltage0 i) Time Samples")
 plt.ylabel("Amplitude")
 plt.plot(rx1.real);
-plt.subplot(3, 1, 2)
-plt.xlabel("(voltage0 q) Time Samples")
-plt.ylabel("Amplitude")
-plt.plot(rx1.imag);
+if (TX_DAC_MODE == 0 or TX_DAC_MODE == 2):
+    plt.subplot(3, 1, 2)
+    plt.xlabel("(voltage0 q) Time Samples")
+    plt.ylabel("Amplitude")
+    plt.plot(rx1.imag);
 # Plot FFT data
 plt.subplot(3, 1, 3)
 plt.semilogy(f, Pxx_den)
@@ -100,6 +110,3 @@ plt.ylabel("PSD [V**2/Hz]")
 plt.show()
 plt.pause(0.05)
 time.sleep(0.1)
-
-# Disable digital loopback if enabled
-sdr._ctrl.debug_attrs['tx0_ssi_test_mode_loopback_en'].value = '0'
