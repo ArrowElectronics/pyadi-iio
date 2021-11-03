@@ -65,6 +65,7 @@ fs = int(sdr.rx0_sample_rate)
 
 # Enable digital loopback
 sdr._ctrl.debug_attrs['tx0_ssi_test_mode_loopback_en'].value = '1'
+sdr._ctrl.debug_attrs['tx1_ssi_test_mode_loopback_en'].value = '1'
 
 # Set TX output mode depending on the TX_DAC_MODE value
 dac.reg_write(DAC_MODE_REGISTER, TX_DAC_MODE)
@@ -110,3 +111,7 @@ plt.ylabel("PSD [V**2/Hz]")
 plt.show()
 plt.pause(0.05)
 time.sleep(0.1)
+
+# Disable digital loopback if enabled
+sdr._ctrl.debug_attrs['tx0_ssi_test_mode_loopback_en'].value = '0'
+sdr._ctrl.debug_attrs['tx1_ssi_test_mode_loopback_en'].value = '0'
