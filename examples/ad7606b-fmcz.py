@@ -163,6 +163,7 @@ plt.title("Frequency Domain Plot")
 plt.xlabel("Frequency (Hz)")
 plt.ylabel("Magnitude (dB)")
 plt.plot(freq_array, freq_domain_magnitude_db)
+plt.tight_layout()
 plt.show()
 del ctx
 del rxadc
