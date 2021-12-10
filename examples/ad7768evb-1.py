@@ -36,8 +36,7 @@ import matplotlib.pyplot as plt
 
 num_samples = 65536 ###Captures 65536 sample from the AD7768
 N = num_samples
-#diff_bits = 20 ###AD4020 is a 20bit Sigma Delta ADC
-diff_bits = 24 ###AD7768 is a 24bit Sigma Delta ADC
+diff_bits = 24 ###AD7768-1 is a 24bit Sigma Delta ADC
 
 # Setup Context and set the IP address
 my_ip = 'ip:169.254.7.212' # default hardcoded ip for remote access
@@ -52,11 +51,9 @@ except:
 
 
 
-#rxadc = ctx.find_device("axi-ad7768-adc") # RX/ADC Core in HDL for DMA
 rxadc = ctx.find_device("ad7768-1") # RX/ADC Core in HDL for DMA
 
-v3 = rxadc.find_channel("voltage0") ##There is only 1-channel for AD7768
-#v3 = rxadc.find_channel("voltage3") ##There is only 1-channel for AD7768
+v3 = rxadc.find_channel("voltage0") ##There is only 1-channel for AD7768-1
 
 v3.enabled = True ##Enable the channel in IIO to start receiving data
 
@@ -64,15 +61,14 @@ time.sleep(10)  ##A 10s delay is needed.
 
 ####Writes 0x63 to register address 0x00####
 reg_value = 0xF7
-#print("Reg_Value = " + reg_value)
-#rxadc.reg_write(0x0B, reg_value)
+
 ###Reads back from the Register address 0x0A
 reg_val = hex(rxadc.reg_read(0x0A))
 reg_val = hex(rxadc.reg_read(0x0A))
 print("Revision register = " + reg_val)
 
 ###Sets or Gets the sampling frequency for AD7768###
-#rxadc.attrs["sampling_frequency"].value = "1800000" ###To write sampling frequency 
+#rxadc.attrs["sampling_frequency"].value = "1800000" ###To write sampling frequency
 
 fs_str = rxadc.attrs["sampling_frequency"].value
 fs = int(fs_str)
@@ -90,9 +86,6 @@ del rxbuf
 
 ####Extract data from buffer########
 data = np.frombuffer(x, np.int32)
-
-####Zero out status and channel bits
-#data = data & 0xffffffff
 
 ###Convert the extracted 2's complement data into positive/negative values####
 for i in range(0, len(data)):
