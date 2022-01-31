@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 
 num_samples = 65536 ###Captures 65536 sample from the AD7768
 N = num_samples
-diff_bits = 24 ###AD7768-1 is a 24bit Sigma Delta ADC
+diff_bits = 32 ###AD7768-1 is a 24bit Sigma Delta ADC stored in 32bit buffer
 
 # Setup Context and set the IP address
 my_ip = 'ip:169.254.7.212' # default hardcoded ip for remote access
@@ -64,7 +64,6 @@ reg_value = 0xF7
 
 ###Reads back from the Register address 0x0A
 reg_val = hex(rxadc.reg_read(0x0A))
-reg_val = hex(rxadc.reg_read(0x0A))
 print("Revision register = " + reg_val)
 
 ###Sets or Gets the sampling frequency for AD7768###
@@ -86,6 +85,9 @@ del rxbuf
 
 ####Extract data from buffer########
 data = np.frombuffer(x, np.int32)
+
+####Extract only 32bit data####
+data = data & 0xffffffff
 
 ###Convert the extracted 2's complement data into positive/negative values####
 for i in range(0, len(data)):
