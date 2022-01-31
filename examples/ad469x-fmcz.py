@@ -38,10 +38,10 @@ num_samples = 65536 ### Captures 65536 sample from the AD469x
 N = num_samples
 diff_bits = 16 ## AD469x is a 16bit ADC
 channel_no = 0 ##There are 16 channels for AD469x
-ADC_MODE = 1   ## 0 = Staggered; 1 = Continuous
+ADC_MODE = 0   ## 0 = Staggered; 1 = Continuous
 
 # Setup Context and set the IP address
-my_ip = 'ip:10.126.203.117' # default hardcoded ip for remote access
+my_ip = 'ip:10.126.202.128' # default hardcoded ip for remote access
 
 try:
     ctx = iio.Context(my_ip)
