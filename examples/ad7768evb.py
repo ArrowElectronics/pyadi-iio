@@ -53,7 +53,7 @@ except:
 
 rxadc = ctx.find_device("axi-ad7768-adc") # RX/ADC Core in HDL for DMA
 
-v3 = rxadc.find_channel("voltage3") ##There are 8 channels for AD7768
+v3 = rxadc.find_channel("voltage0") ##There are 8 channels for AD7768
 
 v3.enabled = True ##Enable the channel in IIO to start receiving data
 
