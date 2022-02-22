@@ -37,7 +37,6 @@ import matplotlib.pyplot as plt
 num_samples = 65536 ###Captures 65536 sample from the AD4630
 N = num_samples
 channel_no = 0 ##AD4630 has two channels
-VCOM_ENABLE = 0 ##Flag to read VCOM values
 
 ## Modes Register Bit Description
 #   OUT_DATA_MD: 0 = 24-bit data
@@ -63,6 +62,12 @@ OUT_DATA_MD = 2
 DDR_MD = 0
 CLK_MD = 0
 LANE_MD = 2
+
+if (OUT_DATA_MD == 1 or OUT_DATA_MD == 2):
+    ##Enable capture of VCOM data
+    VCOM_ENABLE = 1
+else:
+    VCOM_ENABLE = 0
 
 if (OUT_DATA_MD == 0 or OUT_DATA_MD == 2):
 	diff_bits = 24 # 24-bit data
